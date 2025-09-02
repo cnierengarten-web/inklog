@@ -1,0 +1,29 @@
+# Dockers
+/docker/db/data/
+/docker/db/.env.db
+
+# Symfony local env
+**/.env.local
+**/.env.*.local
+
+# Caches & symfony artefacts
+**/var/
+
+# Dépendances
+**/vendor/
+**/node_modules/
+
+# Build front
+apps/**/public/build/
+apps/**/public/assets/
+
+# Tests / toolss
+/.phpunit.result.cache
+/coverage/
+.php-cs-fixer.cache
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

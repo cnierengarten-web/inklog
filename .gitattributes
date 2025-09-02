@@ -1,0 +1,16 @@
+# Exclude technicals filess
+/docker           export-ignore
+/docker-compose.yml export-ignore
+/.gitignore       export-ignore
+/.gitattributes   export-ignore
+
+# drivers to upgrade diffs
+*.php   diff=php
+*.js    diff=javascript
+*.css   diff=css
+*.scss  diff=css
+*.twig  diff=html
+
+# Github Linguist overrides
+*.twig  linguist-language=Twig
+
