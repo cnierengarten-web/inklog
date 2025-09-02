@@ -1,0 +1,60 @@
+services: 
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx_inklog
+    restart: always
+    volumes:
+      - ./apps/inklog:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+        #user: 1000:1000
+    ports:
+      - '80:80'
+    networks:
+      - inklog
+    depends_on:
+      - php
+  php:
+    container_name: php_inklog
+    restart: on-failure
+    build:
+      context: ./docker/php
+    volumes:
+      - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./apps/inklog:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+        #user: 1000:1000
+    networks:
+      - inklog
+    environment:
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
+      PHP_IDE_CONFIG: serverName=php_inklog
+  db:
+    container_name: db_inklog
+    image: postgres:14
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    volumes: 
+      - ./docker/db/data:/var/lib/postgresql/data
+    env_file:
+      - ./docker/db/.env.db
+    networks:
+      - inklog
+    user: 1000:1000
+  adminer:
+    container_name: adminer_inklog
+    profiles: ["tools"]
+    image: adminer:4.8.0
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    depends_on:
+        - db
+    networks:
+      - inklog
+networks:
+  inklog:
