@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
@@ -12,6 +12,12 @@
         {% endblock %}
     </head>
     <body>
+        {%  if app.user %}
+        <form method="post" action="{{ path('app_logout') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+            <button type="submit">Logout</button>
+        </form>
+        {% endif %}
         {% block body %}{% endblock %}
     </body>
 </html>

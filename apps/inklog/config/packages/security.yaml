@@ -2,28 +2,61 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    # https://symfony.com/doc/current/security.html#hierarchical-roles
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+#                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+            # https://symfony.com/doc/current/security.html#form-login
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                username_parameter: email
+                password_parameter: password
+                success_handler: App\Security\LoginSuccessHandler
+                use_referer: true
+                enable_csrf: true
+
+            # https://symfony.com/doc/current/security.html#logging-out
+            logout:
+                path: app_logout
+                target: app_home
+                csrf_token_id: logout
+
+            # https://symfony.com/doc/current/security/remember_me.html
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week
+                path: /
+                secure: auto
+                samesite: lax
 
             # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+            switch_user:
+                role: ROLE_ALLOWED_TO_SWITCH
+            login_throttling:
+                max_attempts: 10
+                interval: '1 minute'
 
-    # Easy way to control access for large sections of your site
+    # https://symfony.com/doc/current/security.html#access-control-authorization
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
