@@ -18,7 +18,7 @@ apps/**/public/build/
 apps/**/public/assets/
 
 # Tests / toolss
-/.phpunit.result.cache
+.phpunit.result.cache
 /coverage/
 .php-cs-fixer.cache
 
