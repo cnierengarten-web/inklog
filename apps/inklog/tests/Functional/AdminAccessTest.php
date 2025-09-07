@@ -3,28 +3,10 @@
 namespace App\Tests\Functional;
 
 use App\Entity\User;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class AdminAccessTest extends WebTestCase
+final class AdminAccessTest extends AbstractWebTestCase
 {
-    private function createUser(string $email, array $roles, string $plainPassword = 'pass'): User
-    {
-        $em     = static::getContainer()->get('doctrine')->getManager();
-        $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
-
-        $u = new User();
-        $u->setEmail($email);
-        $u->setUsername(preg_replace('/@.*/', '', $email) ?: $email);
-        $u->setRoles($roles);
-        $u->setPassword($hasher->hashPassword($u, $plainPassword));
-
-        $em->persist($u);
-        $em->flush();
-
-        return $u;
-    }
-
     public function testAnonymousIsRedirectedToLogin(): void
     {
         $client = static::createClient();
@@ -38,7 +20,7 @@ final class AdminAccessTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $user = $this->createUser('user@test.fr', []); // implicit ROLE_USER
+        $user = $this->createUser('user@test-access.fr', []); // implicit ROLE_USER
         $client->loginUser($user); // fully authenticated (not remember-me)
 
         $client->request('GET', '/admin/dashboard');
@@ -50,7 +32,7 @@ final class AdminAccessTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $admin = $this->createUser('admin@test.fr', ['ROLE_ADMIN']);
+        $admin = $this->createUser('admin@test-access.fr', ['ROLE_ADMIN']);
         $client->loginUser($admin);
 
         $client->request('GET', '/admin/dashboard');
