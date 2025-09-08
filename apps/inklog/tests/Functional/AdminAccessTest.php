@@ -2,9 +2,6 @@
 
 namespace App\Tests\Functional;
 
-use App\Entity\User;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
 final class AdminAccessTest extends AbstractWebTestCase
 {
     public function testAnonymousIsRedirectedToLogin(): void
@@ -20,7 +17,7 @@ final class AdminAccessTest extends AbstractWebTestCase
     {
         $client = static::createClient();
 
-        $user = $this->createUser('user@test-access.fr', []); // implicit ROLE_USER
+        $user = $this->createUser('user@test-access.fr'); // implicit ROLE_USER
         $client->loginUser($user); // fully authenticated (not remember-me)
 
         $client->request('GET', '/admin/dashboard');

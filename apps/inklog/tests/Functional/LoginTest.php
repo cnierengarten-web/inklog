@@ -2,12 +2,8 @@
 
 namespace App\Tests\Functional;
 
-use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LoginTest extends AbstractWebTestCase
 {
@@ -15,7 +11,7 @@ final class LoginTest extends AbstractWebTestCase
     {
         $session = static::getContainer()->get('session.factory')->createSession();
 
-        $key = sprintf('_security.%s.target_path', parent::FIREWALL);
+        $key = sprintf('_security.%s.target_path', self::FIREWALL);
         $session->set($key, $path);
         $session->save();
         $client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
@@ -28,6 +24,8 @@ final class LoginTest extends AbstractWebTestCase
             'storedPassword' => 'pass',
             'usedPassword' => 'wrongPassword',
             'createUser' => true,
+            'csrf' => null,
+            'errorMessage' => 'Invalid credentials.',
         ];
 
         yield 'unknown-user' => [
@@ -35,6 +33,17 @@ final class LoginTest extends AbstractWebTestCase
             'storedPassword' => 'pass',
             'usedPassword' => 'pass',
             'createUser' => false,
+            'csrf' => null,
+            'errorMessage' => 'Invalid credentials.',
+        ];
+
+        yield 'wrong-csrf' => [
+            'email' => 'wrong-csrf@testlogin.fr',
+            'storedPassword' => 'pass',
+            'usedPassword' => 'pass',
+            'createUser' => false,
+            'csrf' => 'wrong-csrf',
+            'errorMessage' => 'Invalid CSRF token.',
         ];
     }
 
@@ -67,13 +76,30 @@ final class LoginTest extends AbstractWebTestCase
             'targetPath' => null,
         ];
 
-        yield 'role-admin_insensitive-case' => [
+        yield 'case-insensitive-email' => [
             'storedEmail' => 'userTestCase@testlogin.fr',
             'loginEmail' => 'userTESTCASE@testlogin.fr',
             'roles' => [],
             'password' => 'pass',
             'expectedRedirect' => '/profile',
             'targetPath' => null,
+        ];
+    }
+
+    public static function provideAlreadyLogged(): iterable
+    {
+        yield 'role-admin_already-logged' => [
+            'storedEmail' => 'adminAlreadyLogged@testlogin.fr',
+            'roles' => ['ROLE_ADMIN'],
+            'password' => 'pass',
+            'expectedRedirect' => '/admin/dashboard',
+        ];
+
+        yield 'role-user_already-logged' => [
+            'storedEmail' => 'userAlreadyLogged@testlogin.fr',
+            'roles' => [],
+            'password' => 'pass',
+            'expectedRedirect' => '/profile',
         ];
     }
 
@@ -85,24 +111,19 @@ final class LoginTest extends AbstractWebTestCase
         string $storedPassword,
         string $usedPassword,
         bool $createUser,
-    ): void
-    {
+        ?string $csrf,
+        string $errorMessage,
+    ): void {
         $client = static::createClient();
         if ($createUser) {
             $this->createUser($email, [], $storedPassword);
         }
 
-
-        $client->request('GET', '/login');
-        $client->request('POST', '/login', [
-            'email' => $email,
-            'password' => $usedPassword,
-            '_csrf_token' => $this->csrf(),
-        ]);
+        $this->login($client, $email, $usedPassword, $csrf);
 
         self::assertResponseRedirects('/login');
         $client->followRedirect();
-        self::assertSelectorTextContains('.alert.alert-danger', $this->t('Invalid credentials.', 'security'));
+        self::assertSelectorTextContains('.alert.alert-danger', $this->t($errorMessage, 'security'));
     }
 
     /**
@@ -114,7 +135,7 @@ final class LoginTest extends AbstractWebTestCase
         array $roles,
         string $password,
         string $expectedRedirect,
-        ?string $targetPath ,
+        ?string $targetPath,
     ): void {
         $client = static::createClient();
         $this->createUser($storedEmail, $roles, $password);
@@ -123,13 +144,85 @@ final class LoginTest extends AbstractWebTestCase
             $this->setTargetPath($targetPath, $client);
         }
 
-        $client->request('GET', '/login');
-        $client->request('POST', '/login', [
-            'email' => $loginEmail,
-            'password' => $password,
-            '_csrf_token' => $this->csrf(),
-        ]);
+        $this->login($client, $loginEmail, $password);
 
         self::assertResponseRedirects($expectedRedirect);
+    }
+
+    /**
+     * @dataProvider provideAlreadyLogged
+     */
+    public function testAlreadyLoggedRedirection(
+        string $storedEmail,
+        array $roles,
+        string $password,
+        string $expectedRedirect,
+    ): void {
+        $client = static::createClient();
+        $user = $this->createUser($storedEmail, $roles, $password);
+        $client->loginUser($user);
+
+        $client->request('GET', '/login');
+        self::assertResponseRedirects($expectedRedirect);
+    }
+
+
+    public function testRememberMe(): void
+    {
+        $client = static::createClient();
+        $this->createUser('adminRememberMe@testlogin.fr', ['ROLE_ADMIN']);
+
+        $this->login($client, 'adminRememberMe@testlogin.fr', 'pass', null, true);
+
+        $cookies = $client->getCookieJar()->all();
+
+        self::ensureKernelShutdown();
+        $clientRemember = static::createClient();
+        $sessionName = static::getContainer()->get('session.factory')->createSession()->getName();
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === $sessionName) {
+                continue; // on ignore la session
+            }
+            $clientRemember->getCookieJar()->set($cookie);
+        }
+
+        // profile is accessible with remember me
+        $clientRemember->request('GET', '/profile');
+        self::assertResponseIsSuccessful();
+
+        // admin need reconnect : IS_AUTHENTICATED_FULLY required
+        $clientRemember->request('GET', '/admin/dashboard');
+        self::assertResponseRedirects('/login', null, 'User remembered only must be redirected to /login for /admin');
+    }
+
+    public function testAllowedToSwitchUser(): void
+    {
+        $client = static::createClient();
+        $this->createUser('superAdmin@testlogin.fr', ['ROLE_SUPER_ADMIN']);
+        $this->createUser('user-switch@testlogin.fr');
+        $this->login($client, 'superAdmin@testlogin.fr');
+
+        self::assertResponseRedirects('/admin/dashboard');
+        $client->followRedirect();
+
+        $client->request('GET', '/profile?_switch_user=user-switch@testlogin.fr');
+        self::assertResponseRedirects('/profile');
+        $client->followRedirect();
+        self::assertSelectorTextContains('[data-testid="profile-username"]', 'user-switch testlogin.fr');
+    }
+
+    public function testNotAllowedToSwitchUser(): void
+    {
+        $client = static::createClient();
+        $this->createUser('userDontSwitch@testlogin.fr');
+        $this->createUser('user-switch-test@testlogin.fr');
+
+
+        $this->login($client, 'userDontSwitch@testlogin.fr');
+        self::assertResponseRedirects('/profile');
+        $client->followRedirect();
+
+        $client->request('GET', '/profile?_switch_user=user-switch-test@testlogin.fr');
+        self::assertResponseStatusCodeSame(403, 'User only cannot use switch');
     }
 }

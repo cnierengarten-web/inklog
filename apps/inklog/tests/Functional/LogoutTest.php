@@ -2,10 +2,6 @@
 
 namespace App\Tests\Functional;
 
-use App\Entity\User;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-
 final class LogoutTest extends AbstractWebTestCase
 {
     public function testGetLogoutDoesNotLogout(): void
@@ -16,10 +12,7 @@ final class LogoutTest extends AbstractWebTestCase
         $client->loginUser($user);
 
         $client->request('GET', '/logout');
-        self::assertTrue(
-            in_array($client->getResponse()->getStatusCode(), [404, 405], true),
-            'GET /logout should not be allowed'
-        );
+        self::assertResponseStatusCodeSame(405);
 
         $client->request('GET', '/profile');
         self::assertResponseIsSuccessful();
