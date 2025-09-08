@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,7 +16,7 @@ class SecurityController extends AbstractController
         if ($this->getUser()) {
             return $this->isGranted('ROLE_ADMIN')
                 ? $this->redirectToRoute('admin_dashboard')
-                : $this->redirectToRoute('user_profile');
+                : $this->redirectToRoute('app_profile');
         }
 
         // get the login error if there is one
@@ -33,6 +34,6 @@ class SecurityController extends AbstractController
     #[Route(path: '/logout', name: 'app_logout', methods: ['POST'])]
     public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }
