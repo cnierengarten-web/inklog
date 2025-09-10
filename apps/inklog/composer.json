@@ -42,6 +42,7 @@
     },
     "config": {
         "allow-plugins": {
+            "infection/extension-installer": true,
             "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true
@@ -80,7 +81,14 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "infection": "vendor/bin/infection --threads=4",
+        "test": "vendor/bin/simple-phpunit",
+        "test:unit": "vendor/bin/simple-phpunit --testsuite Unit",
+        "test:func": "vendor/bin/simple-phpunit --testsuite Functional",
+        "test:inte": "vendor/bin/simple-phpunit --testsuite Functional",
+        "coverage": "vendor/bin/simple-phpunit --display-deprecations --coverage-text",
+        "test:deprecated": "vendor/bin/simple-phpunit --display-deprecations"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -94,11 +102,12 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.1",
+        "infection/infection": "^0.31.2",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",
         "symfony/debug-bundle": "7.3.*",
         "symfony/maker-bundle": "^1.64",
-        "symfony/phpunit-bridge": "^7.3",
+        "symfony/phpunit-bridge": "^7.3.3",
         "symfony/web-profiler-bundle": "7.3.*"
     }
 }
