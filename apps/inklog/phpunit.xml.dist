@@ -1,36 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.3/phpunit.xsd"
     bootstrap="tests/bootstrap.php"
     colors="true"
-    backupGlobals="false"
-    backupStaticAttributes="false"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    processIsolation="false"
-    stopOnFailure="false"
+    cacheResult="false"
+
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    displayDetailsOnPhpunitDeprecations="true"
 >
     <php>
-        <server name="KERNEL_CLASS" value="App\Kernel"/>
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="/foobar/"/>
         <env name="APP_ENV" value="test"/>
         <env name="APP_DEBUG" value="1"/>
         <env name="APP_SECRET" value="test_secret_1234567890"/>
+        <env name="KERNEL_CLASS" value="App\Kernel"/>
+        <env name="XDEBUG_MODE" value="coverage"/>
+        <env name="SYMFONY_PHPUNIT_VERSION" value="11.3"/>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;weak_vendors"/>
     </php>
+
     <testsuites>
-        <testsuite name="App Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Functional">
+            <directory>tests/Functional</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
 
-    <coverage>
+    <source>
         <include>
             <directory>src</directory>
         </include>
         <exclude>
-            <directory>src/Kernel.php</directory>
+            <directory>src/DataFixtures</directory>
+            <file>src/Kernel.php</file>
         </exclude>
-    </coverage>
+    </source>
 </phpunit>
