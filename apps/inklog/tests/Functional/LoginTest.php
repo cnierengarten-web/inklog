@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
 
@@ -103,9 +104,7 @@ final class LoginTest extends AbstractWebTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideFailedLogins
-     */
+     #[DataProvider('provideFailedLogins')]
     public function testFailedLogin(
         string $email,
         string $storedPassword,
@@ -126,9 +125,7 @@ final class LoginTest extends AbstractWebTestCase
         self::assertSelectorTextContains('.alert.alert-danger', $this->t($errorMessage, 'security'));
     }
 
-    /**
-     * @dataProvider provideSuccessfulLogins
-     */
+    #[DataProvider('provideSuccessfulLogins')]
     public function testSuccessLoginRedirect(
         string $storedEmail,
         string $loginEmail,
@@ -149,9 +146,7 @@ final class LoginTest extends AbstractWebTestCase
         self::assertResponseRedirects($expectedRedirect);
     }
 
-    /**
-     * @dataProvider provideAlreadyLogged
-     */
+    #[DataProvider('provideAlreadyLogged')]
     public function testAlreadyLoggedRedirection(
         string $storedEmail,
         array $roles,

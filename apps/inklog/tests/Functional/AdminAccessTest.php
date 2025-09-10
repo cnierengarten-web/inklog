@@ -37,4 +37,15 @@ final class AdminAccessTest extends AbstractWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists("[data-testid=dashboard]");
     }
+
+    public function testRedirectAdminToAdminDashboard(): void
+    {
+        $client = static::createClient();
+        $admin = $this->createUser('adminRedirectToDashboard@test-access.fr', ['ROLE_ADMIN']);
+        $client->loginUser($admin);
+
+
+        $client->request('GET', '/admin');
+        self::assertResponseRedirects('/admin/dashboard');
+    }
 }
