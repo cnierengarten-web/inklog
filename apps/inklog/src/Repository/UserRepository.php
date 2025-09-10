@@ -37,7 +37,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function loadUserByIdentifier(string $identifier): ?UserInterface
     {
-        return $this->findOneBy(['email' => mb_strtolower(trim($identifier))]);
+        return $this->findByEmail($identifier);
     }
 
     public function findByEmail(string $email): ?User
