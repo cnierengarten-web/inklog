@@ -27,3 +27,4 @@ apps/**/public/assets/
 .vscode/
 .DS_Store
 Thumbs.db
+.phpunit.result.cache
