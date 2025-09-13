@@ -18,3 +18,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+# config/services.yaml
+when@dev:
+    services:
+        Faker\Generator:
+            factory: ['Faker\Factory', 'create']
+            arguments: ['fr_FR']
+            shared: false
+

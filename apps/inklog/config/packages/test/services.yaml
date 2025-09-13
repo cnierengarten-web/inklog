@@ -1,0 +1,5 @@
+services:
+    Faker\Generator:
+        factory: ['Faker\Factory', 'create']
+        arguments: ['fr_FR']
+        shared: false
