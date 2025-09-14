@@ -42,15 +42,15 @@ final class LoginSuccessHandlerTest extends TestCase
         $url = $this->createMock(UrlGeneratorInterface::class);
         $url->expects($this->once())
             ->method('generate')
-            ->with('app_profile')
-            ->willReturn('/profile');
+            ->with('author_index')
+            ->willReturn('/author');
 
         $resp = $this->handler('main', $auth, $url)
             ->onAuthenticationSuccess(
                 new Request(),
                 $this->createMock(TokenInterface::class));
 
-        self::assertSame('/profile', $resp->getTargetUrl(), 'Without target path, user logged must be redirect to profile');
+        self::assertSame('/author', $resp->getTargetUrl(), 'Without target path, user logged must be redirect to profile');
     }
 
     public function testNoTargetPathRedirectAdminToDashboard(): void

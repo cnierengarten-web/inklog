@@ -64,8 +64,8 @@ final class LoginTest extends AbstractWebTestCase
             'loginEmail' => 'adminToProfile@testlogin.fr',
             'roles' => ['ROLE_ADMIN'],
             'password' => 'pass',
-            'expectedRedirect' => '/profile',
-            'targetPath' => '/profile',
+            'expectedRedirect' => '/author',
+            'targetPath' => '/author',
         ];
 
         yield 'role-user_redirect-to-profile' => [
@@ -73,7 +73,7 @@ final class LoginTest extends AbstractWebTestCase
             'loginEmail' => 'user@testlogin.fr',
             'roles' => [],
             'password' => 'pass',
-            'expectedRedirect' => '/profile',
+            'expectedRedirect' => '/author',
             'targetPath' => null,
         ];
 
@@ -82,7 +82,7 @@ final class LoginTest extends AbstractWebTestCase
             'loginEmail' => 'userTESTCASE@testlogin.fr',
             'roles' => [],
             'password' => 'pass',
-            'expectedRedirect' => '/profile',
+            'expectedRedirect' => '/author',
             'targetPath' => null,
         ];
     }
@@ -100,7 +100,7 @@ final class LoginTest extends AbstractWebTestCase
             'storedEmail' => 'userAlreadyLogged@testlogin.fr',
             'roles' => [],
             'password' => 'pass',
-            'expectedRedirect' => '/profile',
+            'expectedRedirect' => '/author',
         ];
     }
 
@@ -182,7 +182,7 @@ final class LoginTest extends AbstractWebTestCase
         }
 
         // profile is accessible with remember me
-        $clientRemember->request('GET', '/profile');
+        $clientRemember->request('GET', '/author');
         self::assertResponseIsSuccessful();
 
         // admin need reconnect : IS_AUTHENTICATED_FULLY required
@@ -200,8 +200,8 @@ final class LoginTest extends AbstractWebTestCase
         self::assertResponseRedirects('/admin/dashboard');
         $client->followRedirect();
 
-        $client->request('GET', '/profile?_switch_user=user-switch@testlogin.fr');
-        self::assertResponseRedirects('/profile');
+        $client->request('GET', '/author?_switch_user=user-switch@testlogin.fr');
+        self::assertResponseRedirects('/author');
         $client->followRedirect();
         self::assertSelectorTextContains('[data-testid="profile-username"]', 'user-switch testlogin.fr');
     }
@@ -214,10 +214,10 @@ final class LoginTest extends AbstractWebTestCase
 
 
         $this->login($client, 'userDontSwitch@testlogin.fr');
-        self::assertResponseRedirects('/profile');
+        self::assertResponseRedirects('/author');
         $client->followRedirect();
 
-        $client->request('GET', '/profile?_switch_user=user-switch-test@testlogin.fr');
+        $client->request('GET', '/author?_switch_user=user-switch-test@testlogin.fr');
         self::assertResponseStatusCodeSame(403, 'User only cannot use switch');
     }
 }

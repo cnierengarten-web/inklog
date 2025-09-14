@@ -14,7 +14,7 @@ final class LogoutTest extends AbstractWebTestCase
         $client->request('GET', '/logout');
         self::assertResponseStatusCodeSame(405);
 
-        $client->request('GET', '/profile');
+        $client->request('GET', '/author');
         self::assertResponseIsSuccessful();
     }
 
@@ -32,7 +32,7 @@ final class LogoutTest extends AbstractWebTestCase
         self::assertResponseRedirects('/');
 
         $client->followRedirect();
-        $client->request('GET', '/profile');
+        $client->request('GET', '/author');
         self::assertResponseRedirects('/login');
     }
 }
