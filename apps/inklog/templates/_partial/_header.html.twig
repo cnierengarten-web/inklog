@@ -26,8 +26,8 @@
         <div class="col-md-3 text-end">
             {% if app.user %}
                 <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="{{ path('app_profile') }}" class="nav-link px-2">Mon profil</a></li>
-                    <li><a href="{{ path('app_profile') }}" class="nav-link px-2">Mes articles</a></li>
+                    <li><a href="{{ path('author_index') }}" class="nav-link px-2">Mon profil</a></li>
+                    <li><a href="{{ path('author_index') }}" class="nav-link px-2">Mes articles</a></li>
                     <li>
                         <form method="post" action="{{ path('app_logout') }}">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">

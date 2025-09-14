@@ -40,7 +40,7 @@ final class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         }
 
         if ($this->auth->isGranted('ROLE_USER')) {
-            return new RedirectResponse($this->urlGenerator->generate('app_profile'));
+            return new RedirectResponse($this->urlGenerator->generate('author_index'));
         }
 
         return new RedirectResponse($this->urlGenerator->generate('app_home'));
