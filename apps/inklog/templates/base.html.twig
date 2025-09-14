@@ -1,23 +1,30 @@
+{% set bi = asset('vendor/bootstrap-icons/bootstrap-icons.svg') %}
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {%  if app.user %}
-        <form method="post" action="{{ path('app_logout') }}">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
-            <button type="submit">Logout</button>
-        </form>
-        {% endif %}
+    <link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+{% include "_partial/_header.html.twig" %}
+
+<main class="flex-grow-1">
+    <div class="container py-4">
         {% block body %}{% endblock %}
-    </body>
+    </div>
+</main>
+
+{% include "_partial/_footer.html.twig" %}
+
+
+<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
+{% block javascripts %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+{% endblock %}
+</body>
 </html>
