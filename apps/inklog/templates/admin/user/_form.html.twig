@@ -1,0 +1,19 @@
+{{ form_start(form, { attr: { class: 'row g-3', novalidate: 'novalidate' } }) }}
+
+
+  {{ form_row(form.username, { row_attr: { class: 'col-12' }, attr: { placeholder: 'Votre nom' } }) }}
+  {{ form_row(form.roles, { row_attr: { class: 'col-12' }, attr: { placeholder: 'Votre nom' } }) }}
+  {{ form_row(form.email, { row_attr: { class: 'col-12' } }) }}
+  {{ form_row(form.plainPassword, { row_attr: { class: 'col-12' } }) }}
+
+<div class="col-12 pt-3 border-top d-flex justify-content-between align-items-center">
+    <a href="{{ path('admin_user_index') }}" class="btn btn-outline-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary">
+        <svg class="bi me-2" width="1em" height="1em" aria-hidden="true" focusable="false">
+            <use href="{{ bi }}#plus-lg"></use>
+        </svg>
+        {{ button_label|default('Enregistrer') }}
+    </button>
+</div>
+
+{{ form_end(form) }}

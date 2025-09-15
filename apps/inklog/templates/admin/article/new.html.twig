@@ -1,0 +1,9 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouvel article{% endblock %}
+
+{% block adminpage %}Nouvel article{% endblock %}
+
+{% block content %}
+    {% include 'admin/article/_form.html.twig' with {'article': article,'button_label': 'Créer'} %}
+{% endblock %}

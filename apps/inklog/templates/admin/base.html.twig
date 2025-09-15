@@ -1,0 +1,32 @@
+{% set bi = asset('vendor/bootstrap-icons/bootstrap-icons.svg') %}
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+
+        <link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body class="d-flex flex-column min-vh-100">
+        <main class="d-flex flex-nowrap flex-grow-1 align-items-stretch">
+            {% include 'admin/_partial/_vertical-menu.html.twig' %}
+
+            <div class="container-xxl mt-4 flex-grow-1">
+                <h1>{% block content_title %}Dashboard{% endblock %}</h1>
+                {% include '_partial/_alert-message.html.twig' %}
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+        {% include "_partial/_footer.html.twig" %}
+
+
+
+        <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </body>
+</html>
+

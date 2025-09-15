@@ -1,0 +1,8 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Nouvel utilisateur{% endblock %}
+{% block content_title %}Nouvel utilisateur{% endblock %}
+
+{% block content %}
+    {% include 'admin/user/_form.html.twig' with {'user': user,'button_label': 'Créer'} %}
+{% endblock %}

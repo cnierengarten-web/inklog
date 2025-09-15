@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'app_user')]
@@ -30,6 +31,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(message: 'L\'email doit être valide')]
     private ?string $email = null;
 
     /**
@@ -42,9 +45,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var ?string The hashed password
      */
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.')]
+    #[Assert\PasswordStrength(minScore: Assert\PasswordStrength::STRENGTH_STRONG)]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom d\'utilisateur est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le nom d\'utilisateur doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom d\'utilisateur ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $username = null;
 
     #[Gedmo\Timestampable(on: 'create')]
@@ -202,6 +214,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($article->getAuthor() === $this) {
             $article->setAuthor(null);
         }
+
+        return $this;
+    }
+
+    public function grantRole(string $role): self
+    {
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    public function revokeRole(string $role): self
+    {
+        $this->roles = array_values(array_diff($this->roles, [$role]));
 
         return $this;
     }
