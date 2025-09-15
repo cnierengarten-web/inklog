@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(
@@ -28,12 +29,24 @@ class Article
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $summary = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le contenu est obligatoire')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Le contenu doit contenir au moins {{ limit }} caractères'
+    )]
     private ?string $content = null;
 
     #[Gedmo\Slug(fields: ['title'])]
@@ -56,6 +69,10 @@ class Article
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'articles')]
     #[ORM\JoinTable(name: 'article_tag')]
+    #[Assert\Count(
+        max: 10,
+        maxMessage: 'Vous ne pouvez pas sélectionner plus de {{ limit }} tags'
+    )]
     private Collection $tags;
 
     /**
@@ -63,6 +80,12 @@ class Article
      */
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'articles')]
     #[ORM\JoinTable(name: 'article_category')]
+    #[Assert\Count(
+        min: 1,
+        max: 5,
+        minMessage: 'Vous devez sélectionner moins une categorie',
+        maxMessage: 'Vous ne pouvez pas sélectionner plus de {{ limit }} categories',
+    )]
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'articles')]
@@ -220,6 +243,25 @@ class Article
             $author->getArticles()->add($this);
         }
 
+        return $this;
+    }
+
+    public function isPublished(?DateTimeImmutable $now = null): bool
+    {
+        $now ??= new DateTimeImmutable();
+        return null !== $this->publishedAt && $this->publishedAt <= $now;
+    }
+
+
+    public function publish(?DateTimeImmutable $now = null): static
+    {
+        $this->publishedAt = $now ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        return $this;
+    }
+
+    public function unpublish(): static
+    {
+        $this->publishedAt = null;
         return $this;
     }
 }

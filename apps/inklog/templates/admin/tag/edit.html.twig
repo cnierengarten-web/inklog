@@ -1,0 +1,8 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edition du tag {{ tag.name }}{% endblock %}
+{% block content_title %}Edition du tag {{ tag.name }}{% endblock %}
+
+{% block content %}
+    {% include 'admin/tag/_form.html.twig' with {'tag': tag,'button_label': 'Modifier'} %}
+{% endblock %}
