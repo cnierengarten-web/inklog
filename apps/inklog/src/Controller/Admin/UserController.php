@@ -75,6 +75,8 @@ final class UserController extends AbstractController
     #[Route('/{id}/delete', name: 'delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(Request $request, User $user): Response
     {
+        $this->denyAccessUnlessGranted('USER_DELETE', $user);
+
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->get('_token'))) {
             $this->entityManager->remove($user);
             $this->entityManager->flush();
