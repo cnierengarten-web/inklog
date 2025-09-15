@@ -72,6 +72,7 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
         $content = $this->faker->paragraphs(5, true);
         $article->setContent($content);
 
+        $this->faker->setDefaultTimezone('UTC');
         $publishedAt = $this->faker->optional(0.3)->dateTimeBetween('-2 years', '+2 months');
         $article->setPublishedAt($publishedAt ? DateTimeImmutable::createFromMutable($publishedAt) : null);
 
