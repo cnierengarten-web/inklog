@@ -61,7 +61,7 @@ class Category
     public function setName(string $name): static
     {
         $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
-        $this->name = $name;
+        $this->name = trim($name);
 
         return $this;
     }
