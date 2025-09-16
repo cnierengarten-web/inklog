@@ -6,7 +6,7 @@ final class AdminAccessTest extends AbstractWebTestCase
 {
     public function testAnonymousIsRedirectedToLogin(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
 
         $client->request('GET', '/admin/dashboard');
 
@@ -15,7 +15,7 @@ final class AdminAccessTest extends AbstractWebTestCase
 
     public function testUserGets403OnAdmin(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
 
         $user = $this->createUser('user@test-access.fr'); // implicit ROLE_USER
         $client->loginUser($user); // fully authenticated (not remember-me)
@@ -27,7 +27,7 @@ final class AdminAccessTest extends AbstractWebTestCase
 
     public function testAdminGets200OnAdmin(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
 
         $admin = $this->createUser('admin@test-access.fr', ['ROLE_ADMIN']);
         $client->loginUser($admin);
@@ -40,7 +40,7 @@ final class AdminAccessTest extends AbstractWebTestCase
 
     public function testRedirectAdminToAdminDashboard(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $admin = $this->createUser('adminRedirectToDashboard@test-access.fr', ['ROLE_ADMIN']);
         $client->loginUser($admin);
 

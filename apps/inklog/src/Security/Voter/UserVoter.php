@@ -9,8 +9,11 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class UserVoter extends Voter
 {
-    public const DELETE = 'USER_DELETE';
-    public function __construct(private readonly Security $security) {}
+    public const string DELETE = 'USER_DELETE';
+
+    public function __construct(private readonly Security $security)
+    {
+    }
 
     protected function supports(string $attribute, mixed $subject): bool
     {

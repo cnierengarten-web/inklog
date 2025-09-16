@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -18,12 +18,14 @@ final class TagController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager
-    ) {}
+    ) {
+    }
 
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(TagRepository $tagRepository): Response
     {
         $tags = $tagRepository->findAll();
+
         return $this->render('admin/tag/index.html.twig', [
             'tags' => $tags,
         ]);

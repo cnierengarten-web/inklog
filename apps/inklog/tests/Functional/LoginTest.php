@@ -10,7 +10,7 @@ final class LoginTest extends AbstractWebTestCase
 {
     private function setTargetPath(string $path, KernelBrowser $client): void
     {
-        $session = static::getContainer()->get('session.factory')->createSession();
+        $session = self::getContainer()->get('session.factory')->createSession();
 
         $key = sprintf('_security.%s.target_path', self::FIREWALL);
         $session->set($key, $path);
@@ -104,7 +104,7 @@ final class LoginTest extends AbstractWebTestCase
         ];
     }
 
-     #[DataProvider('provideFailedLogins')]
+    #[DataProvider('provideFailedLogins')]
     public function testFailedLogin(
         string $email,
         string $storedPassword,
@@ -113,7 +113,7 @@ final class LoginTest extends AbstractWebTestCase
         ?string $csrf,
         string $errorMessage,
     ): void {
-        $client = static::createClient();
+        $client = self::createClient();
         if ($createUser) {
             $this->createUser($email, [], $storedPassword);
         }
@@ -134,7 +134,7 @@ final class LoginTest extends AbstractWebTestCase
         string $expectedRedirect,
         ?string $targetPath,
     ): void {
-        $client = static::createClient();
+        $client = self::createClient();
         $this->createUser($storedEmail, $roles, $password);
 
         if ($targetPath) {
@@ -153,7 +153,7 @@ final class LoginTest extends AbstractWebTestCase
         string $password,
         string $expectedRedirect,
     ): void {
-        $client = static::createClient();
+        $client = self::createClient();
         $user = $this->createUser($storedEmail, $roles, $password);
         $client->loginUser($user);
 
@@ -164,7 +164,7 @@ final class LoginTest extends AbstractWebTestCase
 
     public function testRememberMe(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $this->createUser('adminRememberMe@testlogin.fr', ['ROLE_ADMIN']);
 
         $this->login($client, 'adminRememberMe@testlogin.fr', 'pass', null, true);
@@ -172,8 +172,8 @@ final class LoginTest extends AbstractWebTestCase
         $cookies = $client->getCookieJar()->all();
 
         self::ensureKernelShutdown();
-        $clientRemember = static::createClient();
-        $sessionName = static::getContainer()->get('session.factory')->createSession()->getName();
+        $clientRemember = self::createClient();
+        $sessionName = self::getContainer()->get('session.factory')->createSession()->getName();
         foreach ($cookies as $cookie) {
             if ($cookie->getName() === $sessionName) {
                 continue; // on ignore la session
@@ -192,7 +192,7 @@ final class LoginTest extends AbstractWebTestCase
 
     public function testAllowedToSwitchUser(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $this->createUser('superAdmin@testlogin.fr', ['ROLE_SUPER_ADMIN']);
         $this->createUser('user-switch@testlogin.fr');
         $this->login($client, 'superAdmin@testlogin.fr');
@@ -208,7 +208,7 @@ final class LoginTest extends AbstractWebTestCase
 
     public function testNotAllowedToSwitchUser(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $this->createUser('userDontSwitch@testlogin.fr');
         $this->createUser('user-switch-test@testlogin.fr');
 

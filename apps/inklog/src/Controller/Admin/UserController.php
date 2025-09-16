@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -18,12 +18,14 @@ final class UserController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager
-    ) {}
+    ) {
+    }
 
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
+
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
         ]);
@@ -34,7 +36,7 @@ final class UserController extends AbstractController
     {
         $user = new User();
 
-        $form = $this->createForm(UserType::class, $user,['is_creation' => true]);
+        $form = $this->createForm(UserType::class, $user, ['is_creation' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
