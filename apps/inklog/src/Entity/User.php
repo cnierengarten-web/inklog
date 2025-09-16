@@ -146,17 +146,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
-    public function __serialize(): array
-    {
-        $data = (array)$this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password ?? '');
-
-        return $data;
-    }
-
     #[\Deprecated]
     public function eraseCredentials(): void
     {
@@ -229,8 +218,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function revokeRole(string $role): self
     {
-        $this->roles = array_values(array_diff($this->roles, [$role]));
+        $this->roles = array_diff($this->roles, [$role]);
 
         return $this;
+    }
+
+
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'user_identifier' => $this->getUserIdentifier(),
+            'email' => $this->getEmail(),
+            'roles' => $this->getRoles(),
+            'password' => hash('crc32c', (string)$this->getPassword()),
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->id = $data['id'] ?? null;
+        $this->email = $data['email'] ?? null;
+        $this->roles = $data['roles'] ?? [];
+        $this->password = $data['password'] ?? null;
     }
 }
