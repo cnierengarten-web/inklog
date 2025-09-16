@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -19,7 +19,8 @@ final class ArticleController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager
-    ) {}
+    ) {
+    }
 
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(ArticleRepository $articleRepository): Response
@@ -47,7 +48,7 @@ final class ArticleController extends AbstractController
 
             $this->addFlash('success', 'Article créé avec succès !');
 
-            return $this->redirectToRoute('admin_article_show', ['id' => $article->getId()]);
+            return $this->redirectToRoute('admin_article_index', ['id' => $article->getId()]);
         }
 
         return $this->render('admin/article/new.html.twig', [
@@ -67,7 +68,7 @@ final class ArticleController extends AbstractController
 
             $this->addFlash('success', 'Article modifié avec succès !');
 
-            return $this->redirectToRoute('admin_article_show', ['id' => $article->getId()]);
+            return $this->redirectToRoute('admin_article_index', ['id' => $article->getId()]);
         }
 
         return $this->render('admin/article/edit.html.twig', [
@@ -109,7 +110,7 @@ final class ArticleController extends AbstractController
                 $this->entityManager->flush();
                 $this->addFlash('success', 'Article publié avec succès !');
             } else {
-            $this->addFlash('notice', 'L\'article est déjà publié');
+                $this->addFlash('notice', 'L\'article est déjà publié');
 
             }
         } else {

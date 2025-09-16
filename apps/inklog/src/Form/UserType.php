@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Form;
 
@@ -42,8 +42,8 @@ class UserType extends AbstractType
                     'hash_property_path' => 'password',
                     'constraints' => $options['is_creation']
                         ? [
-                            new Constraints\NotBlank([],'Le mot de passe doit être renseigné'),
-                            new Constraints\PasswordStrength([],Constraints\PasswordStrength::STRENGTH_VERY_STRONG),
+                            new Constraints\NotBlank([], 'Le mot de passe doit être renseigné'),
+                            new Constraints\PasswordStrength([], Constraints\PasswordStrength::STRENGTH_VERY_STRONG),
                         ]
                         : [],
                 ],

@@ -51,6 +51,7 @@ abstract class AbstractWebTestCase extends WebTestCase
 
         return $user;
     }
+
     protected function login(
         KernelBrowser $client,
         string $email,

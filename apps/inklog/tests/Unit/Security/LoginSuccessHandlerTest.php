@@ -13,7 +13,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 final class LoginSuccessHandlerTest extends TestCase
 {
-    private function handler(string $firewall = 'main',
+    private function handler(
+        string $firewall = 'main',
         ?AuthorizationCheckerInterface $auth = null,
         ?UrlGeneratorInterface $url = null
     ): LoginSuccessHandler {
@@ -28,6 +29,7 @@ final class LoginSuccessHandlerTest extends TestCase
     {
         $r = new Request();
         $r->setSession(new Session(new MockArraySessionStorage()));
+
         return $r;
     }
 
@@ -36,7 +38,7 @@ final class LoginSuccessHandlerTest extends TestCase
         $auth = $this->createMock(AuthorizationCheckerInterface::class);
         $auth->method('isGranted')->willReturnMap([
             ['ROLE_ADMIN', null, false],
-            ['ROLE_USER',  null, true],
+            ['ROLE_USER', null, true],
         ]);
 
         $url = $this->createMock(UrlGeneratorInterface::class);
@@ -48,9 +50,14 @@ final class LoginSuccessHandlerTest extends TestCase
         $resp = $this->handler('main', $auth, $url)
             ->onAuthenticationSuccess(
                 new Request(),
-                $this->createMock(TokenInterface::class));
+                $this->createMock(TokenInterface::class)
+            );
 
-        self::assertSame('/author', $resp->getTargetUrl(), 'Without target path, user logged must be redirect to profile');
+        self::assertSame(
+            '/author',
+            $resp->getTargetUrl(),
+            'Without target path, user logged must be redirect to profile'
+        );
     }
 
     public function testNoTargetPathRedirectAdminToDashboard(): void
@@ -58,7 +65,7 @@ final class LoginSuccessHandlerTest extends TestCase
         $auth = $this->createMock(AuthorizationCheckerInterface::class);
         $auth->method('isGranted')->willReturnMap([
             ['ROLE_ADMIN', null, true],
-            ['ROLE_USER',  null, true],
+            ['ROLE_USER', null, true],
         ]);
 
         $url = $this->createMock(UrlGeneratorInterface::class);
@@ -74,7 +81,11 @@ final class LoginSuccessHandlerTest extends TestCase
                 $this->createMock(TokenInterface::class)
             );
 
-        self::assertSame('/admin/dashboard', $response->getTargetUrl(), 'Without target path, Admin user must be redirect to admin/dashboard');
+        self::assertSame(
+            '/admin/dashboard',
+            $response->getTargetUrl(),
+            'Without target path, Admin user must be redirect to admin/dashboard'
+        );
 
     }
 
@@ -113,6 +124,9 @@ final class LoginSuccessHandlerTest extends TestCase
             );
 
         self::assertSame('/somewhere', $resp->getTargetUrl(), "Logged user must be redirect to target path url");
-        self::assertFalse($request->getSession()->has('_security.other.target_path'), "Target path must be clean after redirect");
+        self::assertFalse(
+            $request->getSession()->has('_security.other.target_path'),
+            "Target path must be clean after redirect"
+        );
     }
 }

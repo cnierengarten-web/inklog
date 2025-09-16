@@ -6,7 +6,7 @@ final class LogoutTest extends AbstractWebTestCase
 {
     public function testGetLogoutDoesNotLogout(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $user = $this->createUser('userNotLogout@test-logout.fr');
 
         $client->loginUser($user);
@@ -20,7 +20,7 @@ final class LogoutTest extends AbstractWebTestCase
 
     public function testPostLogoutWithCsrfLogsOut(): void
     {
-        $client = static::createClient();
+        $client = self::createClient();
         $user = $this->createUser('userWihoutCsfr@test-logout.fr');
 
         $client->loginUser($user);

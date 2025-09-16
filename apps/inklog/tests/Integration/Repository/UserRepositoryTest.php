@@ -7,6 +7,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 final class UserRepositoryTest extends KernelTestCase
 {
@@ -17,7 +19,7 @@ final class UserRepositoryTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->em = static::getContainer()->get('doctrine')->getManager();
+        $this->em = self::getContainer()->get('doctrine')->getManager();
         $this->repo = $this->em->getRepository(User::class);
 
         $tool = new SchemaTool($this->em);
@@ -50,11 +52,14 @@ final class UserRepositoryTest extends KernelTestCase
 
     public function testUpgradePasswordThrowsOnUnsupportedUser(): void
     {
-        $notOurUser = new class implements \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface {
-            public function getPassword(): ?string { return null; }
+        $notOurUser = new class implements PasswordAuthenticatedUserInterface {
+            public function getPassword(): ?string
+            {
+                return null;
+            }
         };
 
-        $this->expectException(\Symfony\Component\Security\Core\Exception\UnsupportedUserException::class);
+        $this->expectException(UnsupportedUserException::class);
 
         $this->repo->upgradePassword($notOurUser, 'irrelevant');
     }
