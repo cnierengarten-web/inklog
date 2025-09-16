@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Form\Blog;
 
@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class ArticleType extends AbstractType
 {
@@ -42,6 +43,17 @@ class ArticleType extends AbstractType
                     'placeholder' => 'Rédigez votre article...',
                 ],
             ])
+            ->add('imageFile', VichImageType::class, [
+                'label' => 'Image de couverture',
+                'required' => false,
+                'download_uri' => false,
+                'image_uri' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Supprimer l\'image',
+                'asset_helper' => true,
+
+
+            ])
             ->add('publishedAt', DateTimeType::class, [
                 'label' => 'Date de publication',
                 'required' => false,
@@ -49,9 +61,9 @@ class ArticleType extends AbstractType
                 'help' => 'Laissez vide pour un brouillon',
                 'input' => 'datetime_immutable',
                 'html5' => true,
-                'with_seconds'=> true,
+                'with_seconds' => true,
                 'model_timezone' => 'UTC',
-                'view_timezone'  => 'Europe/Paris',
+                'view_timezone' => 'Europe/Paris',
                 'attr' => ['step' => 60],
             ])
             ->add('tags', EntityType::class, [
@@ -73,9 +85,8 @@ class ArticleType extends AbstractType
                 'required' => false,
                 'label' => 'Catégories',
                 'help' => 'Sélectionnez une ou  plusieurs catégories',
-                'by_reference'  => false,
-                'query_builder' => fn (EntityRepository $er) =>
-                $er->createQueryBuilder('c')->orderBy('c.name', 'ASC'),
+                'by_reference' => false,
+                'query_builder' => fn(EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.name', 'ASC'),
             ]);
     }
 
@@ -85,5 +96,13 @@ class ArticleType extends AbstractType
             'data_class' => Article::class,
 
         ]);
+    }
+
+    public function __serialize(): array
+    {
+        $data = (array)$this;
+        unset($data["\0".self::class."\0imageFile"]);
+
+        return $data;
     }
 }

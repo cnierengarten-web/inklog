@@ -2,6 +2,13 @@
 
 
   {{ form_row(form.title, { row_attr: { class: 'col-12' }, attr: { placeholder: 'Titre' } }) }}
+
+  {{ form_row(form.imageFile, { row_attr: { class: 'col-12 col-md-6' } }) }}
+  <div class="col-12 col-md-6">
+    <img id="currentPreview" src="{{ vich_uploader_asset(article, 'imageFile') ?? '' }}" alt=""
+         class="vich-image-preview mb-3 d-block img-thumbnail">
+  </div>
+
   {{ form_row(form.summary, { row_attr: { class: 'col-12' } }) }}
   {{ form_row(form.content, { row_attr: { class: 'col-12' } }) }}
 
@@ -16,14 +23,44 @@
 
   {{ form_row(form.publishedAt, { row_attr: { class: 'col-12' } }) }}
 
-<div class="col-12 pt-3 border-top d-flex justify-content-between align-items-center">
-    <a href="{{ path('admin_article_index') }}" class="btn btn-outline-secondary">Annuler</a>
-    <button type="submit" class="btn btn-primary">
+  <div class="col-12 pt-3 border-top d-flex justify-content-between align-items-center">
+      <a href="{{ path('admin_article_index') }}" class="btn btn-outline-secondary">Annuler</a>
+      <button type="submit" class="btn btn-primary">
         <svg class="bi me-2" width="1em" height="1em" aria-hidden="true" focusable="false">
             <use href="{{ bi }}#plus-lg"></use>
         </svg>
         {{ button_label|default('Enregistrer') }}
-    </button>
-</div>
+      </button>
+  </div>
 
 {{ form_end(form) }}
+
+<script>
+    (function () {
+        const input = document.querySelector('input[type="file"][name="article[imageFile][file]"]');
+        if (!input) return;
+
+        const sel = input.getAttribute('data-preview-target') || '#currentPreview';
+        const img = document.querySelector(sel);
+        if (!img) return;
+        input.addEventListener('change', function () {
+            const [file] = input.files || [];
+            if (!file) {
+                img.classList.add('d-none');
+                img.removeAttribute('src');
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                img.src = e.target.result;
+                img.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    })();
+</script>
+

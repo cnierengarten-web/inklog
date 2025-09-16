@@ -34,3 +34,10 @@ body {
     border-top-right-radius: 0;
 }
 
+.vich-image-preview {
+    max-width: 220px;
+    max-height: 220px;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+}

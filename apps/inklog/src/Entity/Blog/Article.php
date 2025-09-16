@@ -6,12 +6,16 @@ use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\Blog\ArticleRepository;
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(
@@ -21,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index('idx_article_created_at', ['created_at'])]
 #[ORM\Index('idx_article_updated_at', ['updated_at'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_BLOG_ARTICLE_SLUG', fields: ['slug'])]
+#[Vich\Uploadable]
 class Article
 {
     #[ORM\Id]
@@ -63,6 +68,42 @@ class Article
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $publishedAt = null;
+
+    #[Vich\UploadableField(
+        mapping: 'article_image',
+        fileNameProperty: 'imageName',
+        size: 'imageSize',
+        mimeType: 'imageMimeType',
+        originalName: 'imageOriginalName',
+    )]
+    #[Assert\File(
+        maxSize: '5M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        maxSizeMessage: 'L’image ne doit pas dépasser {{ limit }}.',
+        mimeTypesMessage: 'Formats autorisés : JPEG, PNG, WEBP, GIF.'
+    )]
+    #[Assert\Image(
+        minWidth: 300,
+        minHeight: 300,
+        detectCorrupted: true,
+        minWidthMessage: 'Largeur minimale : {{ min_width }}px.',
+        minHeightMessage: 'Hauteur minimale : {{ min_height }}px.',
+        corruptedMessage: 'Fichier image corrompu.'
+    )]
+    #[Ignore] // Ignore imageFile for serialization
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageName = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $imageSize = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageMimeType = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageOriginalName = null;
 
     /**
      * @var Collection<int, Tag>
@@ -166,6 +207,72 @@ class Article
         return $this;
     }
 
+
+    // ------------ Image getter/setter -----
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $file): static
+    {
+        $this->imageFile = $file;
+        if (null !== $file) {
+            // force change detect - used when only the file change
+            $this->updatedAt = new DateTimeImmutable();
+        }
+
+        return $this;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageName(?string $imageName): static
+    {
+        $this->imageName = $imageName;
+
+        return $this;
+    }
+
+    public function getImageSize(): ?int
+    {
+        return $this->imageSize;
+    }
+
+    public function setImageSize(?int $imageSize): static
+    {
+        $this->imageSize = $imageSize;
+
+        return $this;
+    }
+
+    public function getImageMimeType(): ?string
+    {
+        return $this->imageMimeType;
+    }
+
+    public function setImageMimeType(?string $imageMimeType): static
+    {
+        $this->imageMimeType = $imageMimeType;
+
+        return $this;
+    }
+
+    public function getImageOriginalName(): ?string
+    {
+        return $this->imageOriginalName;
+    }
+
+    public function setImageOriginalName(?string $imageOriginalName): static
+    {
+        $this->imageOriginalName = $imageOriginalName;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Tag>
      */
@@ -249,6 +356,7 @@ class Article
     public function isPublished(?DateTimeImmutable $now = null): bool
     {
         $now ??= new DateTimeImmutable();
+
         return null !== $this->publishedAt && $this->publishedAt <= $now;
     }
 
@@ -256,12 +364,22 @@ class Article
     public function publish(?DateTimeImmutable $now = null): static
     {
         $this->publishedAt = $now ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
+
         return $this;
     }
 
     public function unpublish(): static
     {
         $this->publishedAt = null;
+
         return $this;
+    }
+
+    public function __serialize(): array
+    {
+        $data = (array)$this;
+        unset($data["\0".self::class."\0imageFile"]);
+
+        return $data;
     }
 }
