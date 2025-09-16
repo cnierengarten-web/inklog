@@ -40,10 +40,51 @@ final class UserTest extends TestCase
         $u->setPassword('HASHED_DB_VALUE');
 
         $data = $u->__serialize();
-
-        $key = "\0".User::class."\0password";
+        $serialized = [
+            'id' => $u->getId(),
+            'user_identifier' => $u->getUserIdentifier(),
+            'email' => $u->getEmail(),
+            'roles' => $u->getRoles(),
+            'password' => hash('crc32c', (string)$u->getPassword()),
+        ];
+        $key = "password";
         self::assertArrayHasKey($key, $data);
         self::assertSame(hash('crc32c', 'HASHED_DB_VALUE'), $data[$key]);
         self::assertNotSame('HASHED_DB_VALUE', $data[$key], 'Original hash does not be in session.');
+        self::assertSame($serialized, $data);
+    }
+
+    public function testGrantRole(): void
+    {
+        $u = new User();
+        $u->setRoles(['ROLE_USER']);
+        $u->grantRole('ROLE_ADMIN');
+        $roles = $u->getRoles();
+
+        self::assertContains('ROLE_USER', $roles);
+        self::assertContains('ROLE_ADMIN', $roles);
+    }
+
+    public function testGrantRoleAvoidDouble(): void
+    {
+        $u = new User();
+        $u->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
+        $u->grantRole('ROLE_ADMIN');
+        $roles = $u->getRoles();
+
+        self::assertContains('ROLE_USER', $roles);
+        self::assertContains('ROLE_ADMIN', $roles);
+        self::assertSame(array_values(array_unique($roles)), $roles, 'Roles have to be unique');
+    }
+
+    public function testRevokeRole(): void
+    {
+        $u = new User();
+        $u->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
+        $u->revokeRole('ROLE_ADMIN');
+        $roles = $u->getRoles();
+
+        self::assertContains('ROLE_USER', $roles);
+        self::assertNotContains('ROLE_ADMIN', $roles);
     }
 }
