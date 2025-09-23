@@ -2,6 +2,10 @@
 
 namespace App\Entity\Blog;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Tag;
 use App\Entity\User;
 use App\Repository\Blog\ArticleRepository;
@@ -13,6 +17,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Attribute\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
@@ -26,11 +31,31 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\Index('idx_article_updated_at', ['updated_at'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_BLOG_ARTICLE_SLUG', fields: ['slug'])]
 #[Vich\Uploadable]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/articles/preview',
+            normalizationContext: ['groups' => ['article:read', 'article:preview:read']]
+        ),
+        new GetCollection(
+            uriTemplate: '/articles',
+            normalizationContext: ['groups' => ['article:read', 'article:collection:read']]
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['article:read', 'article:item:read']]
+        ),
+    ],
+    normalizationContext: ['groups' => ['article:read']],
+    order: ['publishedAt' => 'DESC'],
+    paginationEnabled: true,
+    paginationItemsPerPage: 10,
+)]
 class Article
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[ApiProperty(identifier: false)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -41,9 +66,11 @@ class Article
         minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
         maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
     )]
+    #[Groups(['article:read'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups('article:collection:read')]
     private ?string $summary = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -52,10 +79,13 @@ class Article
         min: 10,
         minMessage: 'Le contenu doit contenir au moins {{ limit }} caractères'
     )]
+    #[Groups(['article:item:read'])]
     private ?string $content = null;
 
     #[Gedmo\Slug(fields: ['title'])]
     #[ORM\Column(length: 255)]
+    #[Groups(['article:preview:read', 'article:collection:read'])]
+    #[ApiProperty(identifier: true)]
     private ?string $slug = null;
 
     #[Gedmo\Timestampable(on: 'create')]
@@ -67,6 +97,7 @@ class Article
     private ?DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['article:read'])]
     private ?DateTimeImmutable $publishedAt = null;
 
     #[Vich\UploadableField(
@@ -124,13 +155,14 @@ class Article
     #[Assert\Count(
         min: 1,
         max: 5,
-        minMessage: 'Vous devez sélectionner moins une categorie',
-        maxMessage: 'Vous ne pouvez pas sélectionner plus de {{ limit }} categories',
+        minMessage: 'Vous devez sélectionner au moins une catégorie',
+        maxMessage: 'Vous ne pouvez pas sélectionner plus de {{ limit }} catégories',
     )]
     private Collection $categories;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'articles')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['article:read'])]
     private ?User $author = null;
 
     public function __construct()
@@ -381,5 +413,11 @@ class Article
         unset($data["\0".self::class."\0imageFile"]);
 
         return $data;
+    }
+
+    #[Groups(['article:item:read', 'article:collection:read'])]
+    public function getImageUrl(): ?string
+    {
+        return $this->imageName ? '/medias/articles/'.$this->imageName : null;
     }
 }

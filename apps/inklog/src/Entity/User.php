@@ -13,6 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -57,6 +58,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Le nom d\'utilisateur doit contenir au moins {{ limit }} caractères',
         maxMessage: 'Le nom d\'utilisateur ne peut pas dépasser {{ limit }} caractères'
     )]
+    #[Groups(['article:read'])]
     private ?string $username = null;
 
     #[Gedmo\Timestampable(on: 'create')]

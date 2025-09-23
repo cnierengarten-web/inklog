@@ -12,6 +12,7 @@ use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ArticleFixtures extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
 {
@@ -20,10 +21,21 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
 
     /** @var Category[] */
     private array $categoriesPool;
+    private const array AVAILABLE_IMG = ['dog.jpg', 'nature.jpg', 'ocean.jpg', 'desert.jpg'];
 
     public function __construct(
         private readonly Generator $faker,
     ) {
+    }
+
+    private function attachFixtureImage(Article $article, string $fileName = 'nature.jpg'): void
+    {
+        $source = \dirname(__DIR__).'/DataFixtures/files/'.$fileName;
+        $tmp = sys_get_temp_dir().'/'.uniqid('fx_', true).'-'.$fileName;
+        copy($source, $tmp);
+
+        $uploaded = new UploadedFile($tmp, $fileName, 'image/jpeg', null, true);
+        $article->setImageFile($uploaded);
     }
 
     public function load(ObjectManager $manager): void
@@ -43,14 +55,15 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
         $this->faker->seed(8524);
 
         $alice = $this->getReference(UserFixtures::USER_ALICE, User::class);
-        $manager->persist($this->createArticle($alice, 'Création d\'une petite créature aquatique'));
-        $manager->persist($this->createArticle($alice, 'Quelle IA pour développer ?'));
+
+        $manager->persist($this->createArticle($alice, 'Création d\'une petite créature aquatique', 'ocean.jpg'));
+        $manager->persist($this->createArticle($alice, 'Quelle IA pour développer ?', 'desert.jpg'));
         for ($i = 0; $i < 5; $i++) {
             $manager->persist($this->createArticle($alice));
         }
 
         $albert = $this->getReference(UserFixtures::USER_ALBERT, User::class);
-        $manager->persist($this->createArticle($albert, 'Premier montage'));
+        $manager->persist($this->createArticle($albert, 'Premier montage', 'nature.jpg'));
         for ($i = 0; $i < 10; $i++) {
             $manager->persist($this->createArticle($albert));
         }
@@ -58,7 +71,7 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
         $manager->flush();
     }
 
-    private function createArticle(User $author, ?string $title = null): Article
+    private function createArticle(User $author, ?string $title = null, ?string $image = null): Article
     {
         $article = new Article();
 
@@ -77,6 +90,10 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
         $article->setPublishedAt($publishedAt ? DateTimeImmutable::createFromMutable($publishedAt) : null);
 
         $article->setAuthor($author);
+        $image = $image ?? $this->faker->optional(0.3)->randomElement(self::AVAILABLE_IMG);
+        if (isset($image)) {
+            $this->attachFixtureImage($article, $image);
+        }
 
         $tags = $this->faker->randomElements(
             $this->tagsPool,
