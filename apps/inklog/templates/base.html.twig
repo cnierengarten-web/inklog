@@ -3,17 +3,17 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
+    <title>Inklog - {% block title %}{% endblock %}</title>
 
     <link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
-
     {% block stylesheets %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 {% include "_partial/_header.html.twig" %}
 
 <main class="flex-grow-1">
+    {# <= d-flew -> d-flex (et on veut un container ici) #}
     <div class="container py-4">
         {% block body %}{% endblock %}
     </div>
@@ -21,10 +21,7 @@
 
 {% include "_partial/_footer.html.twig" %}
 
-
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
-{% block javascripts %}
-    {% block importmap %}{{ importmap('app') }}{% endblock %}
-{% endblock %}
+{% block javascripts %}{% block importmap %}{{ importmap('app') }}{% endblock %}{% endblock %}
 </body>
 </html>
