@@ -1,5 +1,7 @@
 # Inklog 🖋️
 
+[![CI](https://github.com/cnierengarten-web/inklog/actions/workflows/ci.yml/badge.svg)](https://github.com/cnierengarten-web/inklog/actions/workflows/ci.yml)
+
 Blog prototype built with **Symfony 7**.
 Goal: explore a modern, testable architecture (CRUD, upload, API) within a simple but complete project.
 
