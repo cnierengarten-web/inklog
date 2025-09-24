@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Les articles pour {{ tag.name }}{% endblock %}
 
 {% block body %}
     <div class="mb-4 pb-2 border-bottom">
-        <h1 class="h2 mb-1">Derniers articles</h1>
+        <h1 class="h2 mb-1">Derniers articles pour le tag {{ tag.name }}</h1>
         <p class="text-body-secondary small mb-0">Actus & billets récents</p>
     </div>
 

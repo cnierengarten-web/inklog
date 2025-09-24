@@ -86,11 +86,11 @@ class ArticleFixtures extends Fixture implements DependentFixtureInterface, Fixt
         $article->setContent($content);
 
         $this->faker->setDefaultTimezone('UTC');
-        $publishedAt = $this->faker->optional(0.3)->dateTimeBetween('-2 years', '+2 months');
+        $publishedAt = $this->faker->optional(0.7)->dateTimeBetween('-2 years', '+2 months');
         $article->setPublishedAt($publishedAt ? DateTimeImmutable::createFromMutable($publishedAt) : null);
 
         $article->setAuthor($author);
-        $image = $image ?? $this->faker->optional(0.3)->randomElement(self::AVAILABLE_IMG);
+        $image = $image ?? $this->faker->optional(0.8)->randomElement(self::AVAILABLE_IMG);
         if (isset($image)) {
             $this->attachFixtureImage($article, $image);
         }
