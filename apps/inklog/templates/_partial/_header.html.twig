@@ -1,45 +1,32 @@
-<div class="container">
-    <header
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
-    >
-        <div class="col-md-3 mb-2 mb-md-0">
-            <a
-                href="/"
-                class="d-inline-flex link-body-emphasis text-decoration-none"
-            >
-                <svg
-                    class="bi bi-logo"
-                    role="img"
-                    aria-label="Bootstrap"
-                >
+<header class="border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3">
+            <a href="{{ path('app_home') }}"
+               class="d-inline-flex align-items-center link-body-emphasis text-decoration-none me-3">
+                <svg class="bi bi-logo" role="img" aria-label="Bootstrap">
                     <use href="{{ bi }}#bootstrap-fill"></use>
                 </svg>
             </a>
-        </div>
-        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="#" class="nav-link px-2 link-secondary">Home</a></li>
-            <li><a href="#" class="nav-link px-2">Features</a></li>
-            <li><a href="#" class="nav-link px-2">Pricing</a></li>
-            <li><a href="#" class="nav-link px-2">FAQs</a></li>
-            <li><a href="#" class="nav-link px-2">About</a></li>
-        </ul>
-        <div class="col-md-3 text-end">
-            {% if app.user %}
-                <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="{{ path('author_index') }}" class="nav-link px-2">Mon profil</a></li>
-                    <li><a href="{{ path('author_index') }}" class="nav-link px-2">Mes articles</a></li>
-                    <li>
-                        <form method="post" action="{{ path('app_logout') }}">
+
+            <ul class="nav mb-2 mb-md-0 justify-content-center">
+                <li><a href="{{ path('app_home') }}" class="nav-link px-2">Home</a></li>
+            </ul>
+
+            <div class="text-end">
+                {% if app.user %}
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{{ path('author_index') }}" class="nav-link px-0 link-underline-dark">
+                            Connecté en tant que {{ app.user.username }}
+                        </a>
+                        <form method="post" action="{{ path('app_logout') }}" class="d-inline-block m-0">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
                             <button type="submit" class="btn btn-primary">Logout</button>
                         </form>
-                    </li>
-                </ul>
-            {% else %}
-                <a href="{{ path('app_login') }}" type="button" class="btn btn-outline-primary me-2">
-                    Login
-                </a>
-            {% endif %}
+                    </div>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-primary">Login</a>
+                {% endif %}
+            </div>
         </div>
-    </header>
-</div>
+    </div>
+</header>
