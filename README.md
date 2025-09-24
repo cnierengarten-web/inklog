@@ -3,6 +3,8 @@
 Blog prototype built with **Symfony 7**.
 Goal: explore a modern, testable architecture (CRUD, upload, API) within a simple but complete project.
 
+**Open to freelance Symfony missions (remote / Nantes) !**
+
 ---
 
 ## 🚀 Features
@@ -13,6 +15,9 @@ Goal: explore a modern, testable architecture (CRUD, upload, API) within a simpl
     * Create / edit / delete categories and tags
     * Associate tags and categories
     * Automatic slugs
+    * Upload image on articles with VichUploader
+    * Simple API to get Articles
+    * Display last published articles by tag, category, author
 
 * **Security**
   * Public read access
@@ -29,6 +34,7 @@ Goal: explore a modern, testable architecture (CRUD, upload, API) within a simpl
 * **Tests**
   * Functional tests
     * Login, logout, access restrictions
+    * API
 
   * Unit tests
     * User entity (password, roles)
@@ -130,29 +136,56 @@ inklog/
 
 ## 📸 Screenshots
 
-TODO – insert 2–3 screenshots or a GIF:
-
+### Admin
 * Articles list
-* Create form
+![Articles list screenshot](/docs/admin-articles-list.png)
+
+
+* Article edition
+![Article edition screenshot](/docs/admin-article-edition.png)
+
+
+* Users list : user cannot delete himself nor superadmin user
+![Users list screenshot](/docs/admin-users-list.png)
+
+
+### Front
+* Front - Articles list
+![Front Articles list screenshot](/docs/front-articles-list.png)
+
+
+* Front - Article page
+![Front Article view screenshot](/docs/front-articles-view.png)
+
+### API
 * API docs (Swagger UI)
+![Api swagger](/docs/api-swagger.png)
+
+
+* Request
+![Api swagger result](/docs/api-swagger-result.png)
 
 ---
 
-## 📌 Roadmap
+## 🔧 Possible Improvements
 
-* [ ] Cover Image Upload with VichUploader for Articles
-* [ ] REST API 
-  * [ ] Articles & tags exposed with API Platform
-  * [ ] Pagination, sort by date
-  * [ ] Basic filters (title, tag)
-  * [ ] Articles creations with security management
-  * [ ] API tests (endpoint `/api/articles`)
-* [ ] Article creation by author
-  * [ ] Refactoring Articles
-  * [ ] Security : author (with user role) can only edit his own articles
-* [ ] Improve Tests coverage
-* [ ] Full-text search
-* [ ] Public demo deployment (optional)
+Inklog is intentionally limited to a simple scope (CRUD, security, upload, basic API).  
+Some evolutions could be explored in other projects:
+
+- Refactor article management with user roles (author/editor).
+- Extend test coverage (edge cases, validation).
+- Richer API (authentication, advanced filters, mutations).
+
+👉 This allows Inklog to remain clear and easy to read, while keeping space for future dedicated projects.
+
+
+---
+
+## 📬 Contact
+
+- LinkedIn : https://www.linkedin.com/in/claire-nierengarten-0bb92549/
+- Email : claire.nierengarten.pro [at] gmail [dot] com
+- GitHub : https://github.com/cnierengarten-web/inklog
 
 ---
 
