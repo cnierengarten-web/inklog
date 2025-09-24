@@ -1,20 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProfileController!{% endblock %}
+{% block title %}Profil de {{ app.user.username }}{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="mb-4 pb-2 border-bottom">
+        <h1 class="h2 mb-1">Bienvenue <span data-testid="profile-username">{{ app.user.username }}</span></h1>
+    </div>
 
-<div class="example-wrapper">
-    <h1>Hello <span data-testid="profile-username">{{ app.user.username }}</span>! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/html/src/Controller/ProfileController.php</code></li>
-        <li>Your template at <code>/var/www/html/templates/profile/index.html.twig</code></li>
-    </ul>
-</div>
+    {% if (is_granted('ROLE_ADMIN')) %}
+        <div class="mb-4 pb-2">
+            <h2 class="h3 mb-1">Vos derniers articles</h2>
+        </div>
+        {% include 'article/_list.html.twig' %}
+    {% endif %}
 {% endblock %}

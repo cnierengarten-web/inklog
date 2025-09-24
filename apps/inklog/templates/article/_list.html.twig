@@ -1,0 +1,90 @@
+<div class="row g-4">
+    {% for article in articles %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <article class="card h-100 shadow-sm">
+                <div class="ratio ratio-16x9">
+
+                    <a href="{{ path('article_show', { slug: article.slug }) }}"
+                       class="text-decoration-none">
+                        <img
+                            src="{{ vich_uploader_asset(article, 'imageFile') ?? asset('image/placeholder-article-cover.svg') }}"
+                            alt="{{ article.title }}"
+                            class="w-100 h-100 object-fit-cover rounded-top"
+                            loading="lazy"
+                        >
+                    </a>
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <h2 class="h5 card-title mb-2 position-relative">
+                        <a href="{{ path('article_show', { slug: article.slug }) }}"
+                           class="stretched-link text-decoration-none">
+                            {{ article.title }}
+                        </a>
+                    </h2>
+
+                    <div class="d-flex align-items-center gap-2 text-body-secondary small mb-2">
+                        <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                            <use href="{{ bi }}#person-circle"></use>
+                        </svg>
+                        <span>
+                         {% if article.author %}
+                             <a href="{{ path('author_by_slug', {'slug': article.author.slug}) }}"
+                                title="Les articles de {{ article.author.username }}"
+                                class="link-secondary"
+                             >
+                            {{ article.author.username }}
+                         </a>
+                         {% else %}
+                             Anonyme
+                         {% endif %}
+                        </span>
+                        <span class="vr mx-1"></span>
+                        <svg class="bi" width="1em" height="1em" aria-hidden="true">
+                            <use href="{{ bi }}#calendar-date"></use>
+                        </svg>
+                        <time datetime="{{ article.publishedAt|date('Y-m-d') }}">Publié
+                            le {{ article.publishedAt|date('d/m/Y') }}</time>
+                    </div>
+
+                    {% if article.categories is defined and article.categories|length > 0 %}
+                        <div class="mb-2">
+                            {% for cat in article.categories %}
+                                <a href="{{ path('article_by_category', { slug: cat.slug }) }}"
+                                   class="badge rounded-pill text-bg-primary text-decoration-none me-1 mb-1">
+                                    {{ cat.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <p class="card-text mb-3">
+                        {{ article.summary }}
+                    </p>
+
+                    {% if article.tags is defined and article.tags|length > 0 %}
+                        <div class="mt-auto pt-2">
+                            {% set max = 5 %}
+                            {% for tag in article.tags|slice(0, max) %}
+                                <a href="{{ path('article_by_tag', { slug: tag.slug }) }}"
+                                   class="badge rounded-pill text-bg-light border me-1 mb-1 text-decoration-none">
+                                    #{{ tag.name }}
+                                </a>
+                            {% endfor %}
+                            {% if article.tags|length > max %}
+                                <span
+                                    class="badge rounded-pill text-bg-light border">+{{ article.tags|length - max }}</span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="mt-auto"></div>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info mb-0">Aucun article pour le moment.</div>
+        </div>
+    {% endfor %}
+</div>
